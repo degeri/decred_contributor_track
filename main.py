@@ -1,7 +1,7 @@
 from functions import *
 import sqlite3
 from pathlib import Path
-
+from datetime import datetime
 
 db_file = Path('database.db')
 token = 'FILLTHIS!!!!!!!!!!!!!!!'
@@ -9,6 +9,7 @@ username='decred'
 
 
 if not db_file.is_file():
+    first_time = True
     conn = sqlite3.connect('database.db')
     conn.execute('''CREATE TABLE contributors
              (ID INTEGER PRIMARY KEY     AUTOINCREMENT,
@@ -16,6 +17,8 @@ if not db_file.is_file():
              REPO           TEXT    NOT NULL,
              FIRSTSEEN           DATE    NOT NULL)''')
     conn.close()
+else:
+    first_time = False
 
 
 
@@ -32,8 +35,12 @@ for repo in list_of_repos:
     for c in contributors:
         cursor.execute('''SELECT ID FROM contributors WHERE LOGIN=? AND REPO=?''', (c,repo))
         if not cursor.fetchone():
+            if first_time:
+                date_value = "UNKNOWN"
+            else:
+                date_value = datetime.utcnow().strftime("%Y-%m-%d %H:%M")
             cursor.execute('''INSERT INTO contributors(LOGIN, REPO, FIRSTSEEN)
-                          VALUES(?,?,date('now'))''', (c,repo))
+                          VALUES(?,?,?)''', (c,repo,date_value))
 
 conn.commit()
 conn.close()
