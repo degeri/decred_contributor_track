@@ -12,6 +12,8 @@ python3 main.py
 CSV export:
 
 python3 csv_export.py ---> dumps all
+
+
 python3 csv_export.py "YYYY-MM-DD HH:MM"  ---> This will dump all users after specified date. 
 
 use "https://sqlitebrowser.org/" to work with SQLITE database.
