@@ -22,7 +22,7 @@ if db_file.is_file():
     CsvFile = csv.writer(open(csv_file, 'w'), 'excel')
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    column_names = ['ID', 'LOGIN', 'REPO', 'FIRSTSEEN']
+    column_names = ['ID', 'LOGIN', 'REPO', 'FIRSTSEEN', 'ISFIRSTCONTRIBUTION']
     CsvFile.writerow(column_names)
     for row in cursor.execute('SELECT * FROM contributors'):
         if shouldfilter:
@@ -30,11 +30,9 @@ if db_file.is_file():
                 db_date = datetime.strptime(row[3], '%Y-%m-%d %H:%M')
                 if date_limit < db_date:
                     CsvFile.writerow(row)
-                print(db_date)
             except:
                 None
         else:
             CsvFile.writerow(row)
 else:
     print("No DB or CSV already exists exiting")
-    
