@@ -42,7 +42,7 @@ Base.metadata.create_all(engine)
 
 # ----------- Set session variables ---------------
 
-token = '41d79456af49434bdb55e675d135eebe793d6499'
+token = 'YOUR-TOKEN'
 username='decred'
 
 # Repos to analyze
