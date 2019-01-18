@@ -1,38 +1,25 @@
-import sqlite3
-from pathlib import Path
-import sys
-from datetime import datetime
+
+from database import Base, engine, session
 import csv
 
-shouldfilter = False
-db_file = Path('database.db')
-csv_file = 'database.csv'
+csv_file = 'event_log.csv'
+CsvFile = csv.writer(open(csv_file, 'w'), 'excel')
 
+for row in session.execute('SELECT * FROM event_log'):
+    print(row)
+    CsvFile.writerow(row)
 
-if len(sys.argv) == 2:
-    try:
-        date_limit = datetime.strptime(sys.argv[1], '%Y-%m-%d %H:%M')
-        shouldfilter = True
-    except ValueError:
-        raise ValueError("Incorrect data format, should be YYYY-MM-DD HH(24hrs):MM")
-else:
-    print("No Date specified dumpingall to csv")
+csv_file = 'event_types.csv'
+CsvFile = csv.writer(open(csv_file, 'w'), 'excel')
 
-if db_file.is_file():
-    CsvFile = csv.writer(open(csv_file, 'w'), 'excel')
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    column_names = ['ID', 'LOGIN', 'REPO', 'FIRSTSEEN', 'ISFIRSTCONTRIBUTION']
-    CsvFile.writerow(column_names)
-    for row in cursor.execute('SELECT * FROM contributors'):
-        if shouldfilter:
-            try:
-                db_date = datetime.strptime(row[3], '%Y-%m-%d %H:%M')
-                if date_limit < db_date:
-                    CsvFile.writerow(row)
-            except:
-                None
-        else:
-            CsvFile.writerow(row)
-else:
-    print("No DB or CSV already exists exiting")
+for row in session.execute('SELECT * FROM event_types'):
+    print(row)
+    CsvFile.writerow(row)
+
+csv_file = 'repository_list.csv'
+CsvFile = csv.writer(open(csv_file, 'w'), 'excel')
+
+for row in session.execute('SELECT * FROM repository_list'):
+    print(row)
+    CsvFile.writerow(row)
+

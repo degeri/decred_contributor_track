@@ -1,19 +1,40 @@
 # decred_contributor_track
-This program is to track new decred contributors
 
-Needs python3
+This program is to track new decred contributors and other activity on Decred GitHub repos.
 
-Edit main.py add your oauth token get via "https://github.com/settings/tokens" only needs " Access public repositories " setting. 
+Requirements
 
-Then simply run.
+* python3
+* mariadb
 
-python3 main.py
+# Installation
 
-CSV export:
+Install requrired python modules:
 
-python3 csv_export.py ---> dumps all
+```pip install -r requirements.txt```
 
+## Create Database
 
-python3 csv_export.py "YYYY-MM-DD HH:MM"  ---> This will dump all users after specified date. 
+Use the following commands to create a database and user. NOTE: the username/password is currently ```user/password``` (not very secure). 
 
-use "https://sqlitebrowser.org/" to work with SQLITE database.
+```
+CREATE DATABASE contributors CHARACTER SET UTF8;
+CREATE USER user@localhost IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON contributors.* TO user@localhost;
+FLUSH PRIVILEGES;
+USE contributors;
+```
+
+# How to use
+
+1. Edit ```main.py`` to add your oauth token (stored in token variable). You can create an access token in your [GitHub settings](https://github.com/settings/tokens). It only needs the " Access public repositories " setting.
+
+2. Run the main script.
+
+```python3 main.py```and 
+
+This script fetches data from the GitHub API and stores it in the database.
+
+3. (Optional) run script to output tables into csv files. 
+
+```python3 csv_export.py```
