@@ -73,4 +73,31 @@ def get_issues_repo(user,repo,state,token):
 
     return all_issues
 
+# Get all comments 
+def get_comments_repo(user,repo,token):
+
+    pageno = 0
+
+    comments = requests.get("https://api.github.com/repos/"+user+"/"+repo+"/issues/comments?page="+str(pageno)+'&access_token='+token+"&per_page=100")
+    all_comments = comments.json()
+    while 'next' in comments.links.keys():
+        pageno += 1
+        comments = requests.get("https://api.github.com/repos/"+user+"/"+repo+"/issues/comments?page="+str(pageno)+'&access_token='+token+"&per_page=100")
+        all_comments.extend(comments.json())
+
+    return all_comments
+
+# Get all comments on PRs (reviews) 
+def get_comments_prs_repo(user,repo,token):
+
+    pageno = 0
+
+    comments = requests.get("https://api.github.com/repos/"+user+"/"+repo+"/pulls/comments?page="+str(pageno)+'&access_token='+token+"&per_page=100")
+    all_comments = comments.json()
+    while 'next' in comments.links.keys():
+        pageno += 1
+        comments = requests.get("https://api.github.com/repos/"+user+"/"+repo+"/pulls/comments?page="+str(pageno)+'&access_token='+token+"&per_page=100")
+        all_comments.extend(comments.json())
+
+    return all_comments
 
