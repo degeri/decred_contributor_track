@@ -42,14 +42,14 @@ Base.metadata.create_all(engine)
 
 # ----------- Set session variables ---------------
 
-token = 'YOUR-TOKEN'
+token = 'e3248b067a32733312baf51228f0061fe4b35bff'
 username='decred'
 
 # Repos to analyze
 repos = ['politeia', 'dcrd', 'dcrwallet', 'dcrdata', 'dcrbounty', 'decrediton', 'dcrdocs']
 repo = 'politeia'  # select this replo for now
 
-event_types = ['commit', 'issue', 'pull_request', 'comment_on_comment', 'comment_on_pr', 'review']
+event_types = ['commit', 'issue', 'pull_request', 'comment', 'review']
 
 # # ----------- Get list of all repos  ---------------
 
@@ -138,4 +138,41 @@ for issue in all_issues:
   session.commit()  
   # print(issue['title'])  
     # print(issue['title'])  
+
+# ----------- Fetch comments on Issues -----------
+
+# state = 'all'  # (open, closed, all (default = open))
+print('fetching comments...')
+all_comments = get_comments_repo(username,repo,token)
+
+# save issues in db
+for comment in all_comments: 
+
+  comment_event = Event()
+  comment_event.type_id = 4
+  comment_event.repo_id = 1 # NOTE HARDCODED BUT NEEDS TO BE DYNAMIC
+  comment_event.github_username = comment['user']['login'] 
+  comment_event.datetime = datetime.datetime.strptime(comment['created_at'] , "%Y-%m-%dT%H:%M:%SZ")  #NOTE: using "created at" (can also do last modified)
+  comment_event.github_url = comment['html_url']  # Note: this is the HTML url (can also do API call)
+  session.add(comment_event)
+  session.commit()  
+
+# ----------- Fetch comments on PRs (reviews) -----------
+
+# state = 'all'  # (open, closed, all (default = open))
+print('fetching comments PRs (reviews)...')
+all_comments = get_comments_prs_repo(username,repo,token)
+
+# save issues in db
+for comment in all_comments: 
+
+  comment_event = Event()
+  comment_event.type_id = 5
+  comment_event.repo_id = 1 # NOTE HARDCODED BUT NEEDS TO BE DYNAMIC
+  comment_event.github_username = comment['user']['login'] 
+  comment_event.datetime = datetime.datetime.strptime(comment['created_at'] , "%Y-%m-%dT%H:%M:%SZ")  #NOTE: using "created at" (can also do last modified)
+  comment_event.github_url = comment['html_url']  # Note: this is the HTML url (can also do API call)
+  session.add(comment_event)
+  session.commit()  
+
 
