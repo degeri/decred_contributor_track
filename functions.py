@@ -1,4 +1,4 @@
-import json, requests, csv
+import requests, time
 
 
 # Get all repos for a given user/org
@@ -14,6 +14,9 @@ def get_all_repo(user,token):
         else:
             break
     return all_repo
+
+
+# Get list of repos and usernames
 
 # Get all contributors for a given repo
 def get_all_contributors(user,repo,token):
@@ -54,7 +57,7 @@ def get_pull_requests_repo(user,repo,state,token):
     all_pull_requests = pull_requests.json()
     while 'next' in pull_requests.links.keys():
         pageno += 1
-        pull_requests = requests.get("https://api.github.com/repos/"+user+"/"+repo+"/pulls?page="+str(pageno)+'&access_token='+token+"&per_page=100")
+        pull_requests = requests.get("https://api.github.com/repos/"+user+"/"+repo+"/pulls?state="+state+"&page="+str(pageno)+'&access_token='+token+"&per_page=100")
         all_pull_requests.extend(pull_requests.json())
 
     return all_pull_requests
@@ -73,7 +76,7 @@ def get_issues_repo(user,repo,state,token):
 
     return all_issues
 
-# Get all comments 
+# Get all comments on issues
 def get_comments_repo(user,repo,token):
 
     pageno = 0
@@ -100,4 +103,12 @@ def get_comments_prs_repo(user,repo,token):
         all_comments.extend(comments.json())
 
     return all_comments
+
+
+# Checks remaining requests if given a github token if lower than x then will wait for one hour.
+def check_limit_wait(token):
+    remaining_requests = requests.get("https://api.github.com/rate_limit?access_token="+token)
+    if remaining_requests.json()['rate']['remaining'] < 100:
+        print("We seem to be nearing rate limit stopping for an hour")
+        time.sleep(3600)
 
