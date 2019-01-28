@@ -9,7 +9,7 @@ Requirements
 
 # Installation
 
-Install requrired python modules:
+Install required python modules:
 
 ```pip install -r requirements.txt```
 
