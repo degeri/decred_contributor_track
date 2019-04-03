@@ -39,7 +39,7 @@ Base.metadata.create_all(engine)
 
 # ----------- Set session variables ---------------
 
-token = 'TOKEN'
+token = 'YOUR-TOKEN'
 username='decred'
 
 

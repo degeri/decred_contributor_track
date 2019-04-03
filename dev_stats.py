@@ -1,6 +1,7 @@
 from database import Base, engine, session
 import csv
 from functions import *
+from main import *
 
 # Get list of repositories in database
 r = session.execute('SELECT * FROM repository_list;') 
@@ -75,6 +76,8 @@ print(repo)
 
 
 i = 0
+total_additions = 0
+total_deletions = 0
 
 for i in range(len(repos)):
 
@@ -84,7 +87,12 @@ for i in range(len(repos)):
 	print("total changes: " + str(additions_v[i]+deletions_v[i]))
 	print("commits master: " + str(commits_v[i]))
 	print("open PRs: " + str(open_prs_v[i])+"\n")
-	
+
+	total_additions += additions_v[i]
+	total_deletions += deletions_v[i]
+
+print("total additions (all repos): " + str(total_additions))
+print("total deletions (all repos): " + str(total_deletions))
 
 
 
