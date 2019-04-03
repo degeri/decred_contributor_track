@@ -7,9 +7,7 @@ before_list = []
 feb_list = []
 
 for b in a:
-    #print(b['github_username'])
-    #c = session.execute('SELECT * FROM event_log WHERE datetime <  "2019-01-01" and github_username = "'+b['github_username']+'";')
-    #print(b[0])
+
     feb_list.append(b[0])
     c = session.execute('SELECT * FROM event_log WHERE datetime <  "2019-02-01" and github_username = "'+str(b[0])+'" and type_id = 1;')
     #print(b)

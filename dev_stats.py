@@ -18,10 +18,6 @@ commits_v = []
 list_of_repos = ['dcrdocs']
 
 for repo in r:
-# for repo in list_of_repos:
-
-	# print(repo["name"])
-	# print(repo["id"])
 
 	repos.append(repo["name"])
 	# repos.append(repo)
@@ -78,11 +74,9 @@ for repo in r:
 print(repo)
 
 
-
 i = 0
 
 for i in range(len(repos)):
-# for repo in r:
 
 	print("repo: "+ repos[i])
 	print("additions: " + str(additions_v[i]))
