@@ -1,8 +1,9 @@
 import datetime
-from sqlalchemy import Column, Integer, String, DateTime, exc, VARCHAR, select, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, exc, VARCHAR, select, ForeignKey, BLOB, LargeBinary #Text # JSON
 from database import Base, engine, session
 from functions import *
-
+import json
+import pickle
 
 # ----------- Create db models ---------------
 
@@ -15,6 +16,8 @@ class Event(Base):
     github_username = Column(String(39)) # 39 is max len of github username
     datetime = Column(DateTime, default=datetime.datetime.now)
     github_url = Column(VARCHAR(255),unique=True) #2083 max len of a URL, but cannot use 'unique' hope this is enough.
+    data = Column(LargeBinary)
+    # data = Column(BLOB)
 
 class Repo(Base):
     __tablename__ = "repository_list"
@@ -36,7 +39,7 @@ Base.metadata.create_all(engine)
 
 # ----------- Set session variables ---------------
 
-token = 'YOUR-TOKEN'
+token = '58be8c6b6d71c80a48607dcc220f8c7ddd390a6a'
 username='decred'
 
 
@@ -45,11 +48,13 @@ username='decred'
 
 print('fetching repos...')
 #list_of_repos=get_all_repo(username,token) #for actual full list.
+# list_of_repos = ['dcrd', 'decrediton', 'dcrweb', 'dcrwallet','dcrdata','dcrdocs','politeia'] #'dcrios',
 list_of_repos = ['politeia','politeiagui','dcrweb', 'dcrd', 'dcrwallet', 'dcrdata', 'decrediton', 'dcrdocs']
+# list_of_repos = ['politeia']
+# list_of_repos = ['dcrd']
+# list_of_repos = ['politeia','politeiagui']
 
 # ------------- Save repos id's into db -----------
-
-
 
 for i in range(0,len(list_of_repos)):
     print(list_of_repos[i])
@@ -62,9 +67,10 @@ for i in range(0,len(list_of_repos)):
         session.commit()
     except exc.IntegrityError as err:
         session.rollback()
-# ------------- Set event types into db -----------
-event_types = ['commit', 'issue', 'pull_request', 'comment', 'review']
 
+# ------------- Set event types into db -----------
+
+event_types = ['commit', 'issue', 'pull_request', 'comment', 'review']
 
 for i in range(0,len(event_types)):
     event_type = Event_type()
@@ -74,6 +80,7 @@ for i in range(0,len(event_types)):
         session.commit()
     except exc.IntegrityError as err:
         session.rollback()
+
 # --------------Load events from DB into a dictionary------------------------
 
 select_event = select([Event_type])
@@ -83,6 +90,7 @@ event_dict = {}
 
 for event_rows in event_result:
     event_dict[event_rows['event_type']] = event_rows['id']
+
 # --------------- Fetch all repo from database--------------------------
 
 select_repo = select([Repo])
@@ -107,8 +115,10 @@ for repo_row in repo_result:
         commit_event.type_id = event_dict['commit']
         commit_event.repo_id = repo_id
         commit_event.github_username = commit['commit']['author']['name']
-        commit_event.datetime = datetime.datetime.strptime(commit['commit']['author']['date'], "%Y-%m-%dT%H:%M:%SZ")
+        commit_event.datetime = datetime.datetime.strptime(commit['commit']['committer']['date'], "%Y-%m-%dT%H:%M:%SZ")
         commit_event.github_url = commit['html_url']  # Note: this is the HTML url (can also do API call)
+        # commit_event.data = json.dumps(commit)
+        commit_event.data = pickle.dumps(commit)
         try:
             session.add(commit_event)
             session.commit()
@@ -131,6 +141,7 @@ for repo_row in repo_result:
         pr.datetime = datetime.datetime.strptime(pull_request['created_at'],
                                                  "%Y-%m-%dT%H:%M:%SZ")  # NOTE: using "created at" (can also do last modified)
         pr.github_url = pull_request['html_url']  # Note: this is the HTML url (can also do API call)
+        pr.data = pickle.dumps(pull_request)
         try:
             session.add(pr)
             session.commit()
@@ -139,6 +150,7 @@ for repo_row in repo_result:
 
 
     # ----------- Fetch Issues repo -----------
+
     check_limit_wait(token)
     state = 'all'  # (open, closed, all (default = open))
     print('fetching Issues...')
@@ -153,6 +165,7 @@ for repo_row in repo_result:
         issue_event.datetime = datetime.datetime.strptime(issue['created_at'],
                                                           "%Y-%m-%dT%H:%M:%SZ")  # NOTE: using "created at" (can also do last modified)
         issue_event.github_url = issue['html_url']  # Note: this is the HTML url (can also do API call)
+        # issue_event.data = pickle.dumps(issue)
         try:
             session.add(issue_event)
             session.commit()
@@ -175,6 +188,8 @@ for repo_row in repo_result:
         comment_event.github_username = comment['user']['login']
         comment_event.datetime = datetime.datetime.strptime(comment['created_at'] , "%Y-%m-%dT%H:%M:%SZ")  #NOTE: using "created at" (can also do last modified)
         comment_event.github_url = comment['html_url']  # Note: this is the HTML url (can also do API call)
+        # comment_event.data = pickle.dumps(comment)
+
         try:
             session.add(comment_event)
             session.commit()
@@ -197,6 +212,7 @@ for repo_row in repo_result:
         comment_event.github_username = comment['user']['login']
         comment_event.datetime = datetime.datetime.strptime(comment['created_at'] , "%Y-%m-%dT%H:%M:%SZ")  #NOTE: using "created at" (can also do last modified)
         comment_event.github_url = comment['html_url']  # Note: this is the HTML url (can also do API call)
+        comment_event.data = pickle.dumps(comment)
         try:
             session.add(comment_event)
             session.commit()
