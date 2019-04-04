@@ -35,6 +35,10 @@ USE contributors;
 
 This script fetches data from the GitHub API and stores it in the database.
 
-3. (Optional) run script to output tables into csv files. 
+3. (Optional) run the export script to output tables into csv files. 
 
 ```python3 csv_export.py```
+
+4. (Optional) run the dev stats script to generate baseic repo-level statistsics (# commits, additions, deletions, total lines changed).
+
+```python3 dev_stats.py```
