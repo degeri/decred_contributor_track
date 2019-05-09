@@ -3,29 +3,39 @@ import csv
 from functions import *
 from main import *
 
+
+start_date = datetime.datetime.strptime('4/1/2019', '%m/%d/%Y')
+end_date = datetime.datetime.strptime('5/1/2019', '%m/%d/%Y')
+
 # Get list of repositories in database
 r = session.execute('SELECT * FROM repository_list;') 
 
 additions_total = 0
 deletions_total = 0
+commits_total = 0
+active_prs_total = 0
+repos_total = 0
 
 repos = []
-open_prs = []
+active_prs = []
 additions_v = []
 deletions_v = []
 open_prs_v = []
+active_prs_v = []
 commits_v = []
 
-list_of_repos = ['dcrdocs']
 
+# For each repo, calculate dev stats
 for repo in r:
 
 	repos.append(repo["name"])
 	# repos.append(repo)
 
+	# Query commits and calculate # commits, additions/deletions
 	check_limit_wait(token) # Check to see if over API rate limit
+
 	# fetch commits
-	c = session.query(Event).filter(Event.type_id==1, Event.repo_id==repo["id"], Event.datetime >  "2019-03-01", Event.datetime < "2019-04-01").all()  
+	c = session.query(Event).filter(Event.type_id==1, Event.repo_id==repo["id"], Event.datetime >  "2019-04-01", Event.datetime < "2019-05-01").all()  
 	# c = session.query(Event).filter(Event.type_id==1, Event.repo_id==1, Event.datetime >=  "2019-03-01", Event.datetime <= "2019-04-01").all()  
 
 	additions = 0
@@ -52,32 +62,47 @@ for repo in r:
 	deletions_v.append(deletions)
 	commits_v.append(commits)
 
+	repos_total += 1
+	commits_total += commits
 	additions_total += additions
 	deletions_total += deletions 
 
-
-	# fetch open PRs
 	check_limit_wait(token) # Check to see if over API rate limit
-	p = session.query(Event).filter(Event.type_id==3, Event.repo_id==repo["id"], Event.datetime >=  "2019-03-01", Event.datetime <= "2019-04-01").all()  
-	# p = session.query(Event).filter(Event.type_id==3, Event.repo_id==1, Event.datetime >=  "2019-03-01", Event.datetime <= "2019-03-31").all() 
 
-	open_prs = 0
+	# Query PRs and calculate # active
+	p = session.query(Event).filter(Event.type_id==3, Event.repo_id==repo["id"]).all() 
+
+	active_prs = 0
 
 	for pr in p:
 		pull_request = pickle.loads(pr.data)
-		# print(pull_request['state'])
-		print(state)
-		if pull_request['state'] == 'open':
-			open_prs += 1
 
-	open_prs_v.append(open_prs)
+		created_date = datetime.datetime.strptime(pull_request['created_at'],"%Y-%m-%dT%H:%M:%SZ")  # NOTE: using "created at" (can also do last modified)
 
-print(repo)
+		if pull_request['state'] == 'open' and \
+			(created_date >= start_date and created_date <= end_date):
 
+			 active_prs += 1
+
+		if pull_request['state'] == 'closed' and pull_request['merged_at']:
+			merged_at = datetime.datetime.strptime(pull_request['merged_at'],"%Y-%m-%dT%H:%M:%SZ") 
+
+			if (merged_at >= start_date and merged_at <= end_date):
+				active_prs += 1
+				merged_prs += 1
+
+	active_prs_total += active_prs
+	active_prs_v.append(active_prs)
+
+
+# Calculate stat totals
 
 i = 0
 total_additions = 0
 total_deletions = 0
+total_active_prs = 0
+total_commits = 0
+total_repos = 0
 
 for i in range(len(repos)):
 
@@ -86,16 +111,20 @@ for i in range(len(repos)):
 	print("deletions: " + str(deletions_v[i]))
 	print("total changes: " + str(additions_v[i]+deletions_v[i]))
 	print("commits master: " + str(commits_v[i]))
-	print("open PRs: " + str(open_prs_v[i])+"\n")
+	print("active PRs: " + str(active_prs_v[i])+"\n")
+	# print("open PRs: " + str(open_prs_v[i])+"\n")
 
 	total_additions += additions_v[i]
 	total_deletions += deletions_v[i]
+	total_active_prs += active_prs_v[i]
+	total_commits += commits_v[i]
+	total_repos += 1
+
 
 print("total additions (all repos): " + str(total_additions))
 print("total deletions (all repos): " + str(total_deletions))
-
-
-
-
+print("total commits (all repos): " + str(total_commits))
+print("total active PRs (all repos): " + str(total_active_prs))
+print("total repos: " + str(total_repos))
 
 
