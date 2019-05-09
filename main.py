@@ -39,9 +39,10 @@ Base.metadata.create_all(engine)
 
 # ----------- Set session variables ---------------
 
-token = 'YOUR-TOKEN'
+token = '7e3334fba97b2763119da24cec0e5a98d3ee4f5c'
 username='decred'
-
+# username = 'raedahgroup'
+# https://github.com/raedahgroup/
 
 
 # # ----------- Get list of all repos  ---------------
@@ -49,10 +50,11 @@ username='decred'
 print('fetching repos...')
 #list_of_repos=get_all_repo(username,token) #for actual full list.
 # list_of_repos = ['dcrd', 'decrediton', 'dcrweb', 'dcrwallet','dcrdata','dcrdocs','politeia'] #'dcrios',
-list_of_repos = ['politeia','politeiagui','dcrweb', 'dcrd', 'dcrwallet', 'dcrdata', 'decrediton', 'dcrdocs']
+# list_of_repos = ['politeia','politeiagui','dcrweb', 'dcrd', 'dcrwallet', 'dcrdata', 'decrediton', 'dcrdocs']
+list_of_repos = ['politeia','politeiagui','dcrweb', 'dcrd', 'dcrwallet', 'dcrdata', 'decrediton', 'dcrdocs', 'dcrstakepool', 'atomicswap', 'dcrandroid', 'hardforkdemo', 'base58']
 # list_of_repos = ['politeia']
 # list_of_repos = ['dcrd']
-# list_of_repos = ['politeia','politeiagui']
+# list_of_repos = ['dcrios', 'godcr'] #'dcrlibwallet','godcr']
 
 # ------------- Save repos id's into db -----------
 
