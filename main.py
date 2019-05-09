@@ -39,7 +39,7 @@ Base.metadata.create_all(engine)
 
 # ----------- Set session variables ---------------
 
-token = '7e3334fba97b2763119da24cec0e5a98d3ee4f5c'
+token = 'YOURTOKEN'
 username='decred'
 # username = 'raedahgroup'
 # https://github.com/raedahgroup/
